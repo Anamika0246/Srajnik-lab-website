@@ -9,9 +9,18 @@ const eventSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  category: {
+    type: String,
+    enum: ['Event', 'News'],
+    default: 'Event',
+    required: true
+  },
   date: {
     type: Date,
     required: true
+  },
+  endDate: {
+    type: Date
   },
   location: {
     type: String,

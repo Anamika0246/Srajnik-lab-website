@@ -155,9 +155,22 @@ const Contact = () => {
               {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full bg-linear-to-r from-blue-600 to-indigo-700 text-white font-semibold py-4 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300"
+                disabled={loading}
+                className={`w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-semibold py-4 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 ${
+                  loading ? 'opacity-70 cursor-not-allowed' : ''
+                }`}
               >
-                Send Message
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Sending...
+                  </span>
+                ) : (
+                  'Send Message'
+                )}
               </button>
             </form>
           </div>
@@ -206,10 +219,27 @@ const Contact = () => {
                     </svg>
                   </div>
                   <div>
-                    <h4 className="font-semibold mb-1">Phone</h4>
-                    <a href="tel:+911234567890" className="text-blue-100 hover:text-white transition-colors">
-                      +91 123 456 7890
-                    </a>
+                    <h4 className="font-semibold mb-1">Contact</h4>
+                    <div className="text-blue-100 space-y-1">
+                      <div>
+                        <a href="tel:+919506611484" className="hover:text-white transition-colors">
+                          95066 11484
+                        </a>
+                        <span className="text-blue-200 text-sm"> (Amit Kumar Bajpai)</span>
+                      </div>
+                      <div>
+                        <a href="tel:+918317034948" className="hover:text-white transition-colors">
+                          831 703 4948
+                        </a>
+                        <span className="text-blue-200 text-sm"> (Atul Kumar)</span>
+                      </div>
+                      <div>
+                        <a href="tel:+916388857763" className="hover:text-white transition-colors">
+                          6388857763
+                        </a>
+                        <span className="text-blue-200 text-sm"> (Hariom)</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -299,18 +329,23 @@ const Contact = () => {
         </div>
       </section>
 
-      {/* Map Section (Placeholder) */}
+      {/* Map Section */}
       <section className="bg-gray-100 py-16 px-6">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">Find Us</h2>
-          <div className="bg-white rounded-3xl shadow-xl overflow-hidden h-96 flex items-center justify-center">
-            <div className="text-center text-gray-500">
-              <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-              </svg>
-              <p className="text-lg">Interactive map will be integrated here</p>
-            </div>
+          <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+            <a 
+              href="https://maps.app.goo.gl/SkwBqbe74YmR4WfR7" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="block hover:opacity-90 transition-opacity cursor-pointer"
+            >
+              <img 
+                src="/map.png" 
+                alt="Location Map - Click to open in Google Maps" 
+                className="w-full h-auto object-cover"
+              />
+            </a>
           </div>
         </div>
       </section>

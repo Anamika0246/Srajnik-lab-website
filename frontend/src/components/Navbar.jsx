@@ -19,8 +19,9 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
 
         {/* LOGO */}
-        <Link to="/" className="text-xl font-bold text-blue-600">
-          Srajnik Lab
+        <Link to="/" className="flex items-center gap-3">
+          <img src="/SS-LOGO.PNG" alt="Srajnik Lab Logo" className="h-10 w-10 object-contain" />
+          <span className="text-xl font-bold text-blue-600">Srajnik Lab</span>
         </Link>
 
         {/* DESKTOP MENU */}

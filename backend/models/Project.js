@@ -27,6 +27,9 @@ const projectSchema = new mongoose.Schema({
   githubLink: {
     type: String,
     required: true
+  },
+  demoLink: {
+    type: String
   }
 }, {
   timestamps: true

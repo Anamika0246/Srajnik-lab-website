@@ -1,95 +1,49 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 
 const Gallery = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [activeCategory, setActiveCategory] = useState('All');
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const images = [
-    {
-      id: 1,
-      url: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800&h=600&fit=crop",
-      title: "Arduino Workshop",
-      category: "Workshops",
-      description: "Students learning Arduino programming and circuit design"
-    },
-    {
-      id: 2,
-      url: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800&h=1000&fit=crop",
-      title: "Robotics Competition",
-      category: "Events",
-      description: "Annual robotics competition showcasing student projects"
-    },
-    {
-      id: 3,
-      url: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&h=800&fit=crop",
-      title: "Drone Assembly",
-      category: "Projects",
-      description: "Building and testing quadcopter drones"
-    },
-    {
-      id: 4,
-      url: "https://images.unsplash.com/photo-1581093458791-9d42e5f7d6e6?w=800&h=600&fit=crop",
-      title: "Electronics Lab",
-      category: "Lab",
-      description: "State-of-the-art electronics workstation"
-    },
-    {
-      id: 5,
-      url: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&h=900&fit=crop",
-      title: "PCB Design Workshop",
-      category: "Workshops",
-      description: "Learning PCB design and fabrication techniques"
-    },
-    {
-      id: 6,
-      url: "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=800&h=600&fit=crop",
-      title: "IoT Project Demo",
-      category: "Projects",
-      description: "Smart home automation using ESP32"
-    },
-    {
-      id: 7,
-      url: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=900&h=600&fit=crop",
-      title: "Team Collaboration",
-      category: "Events",
-      description: "Students working together on robotics project"
-    },
-    {
-      id: 8,
-      url: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=600&h=800&fit=crop",
-      title: "3D Printing",
-      category: "Lab",
-      description: "Creating custom parts for robotics projects"
-    },
-    {
-      id: 9,
-      url: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&h=800&fit=crop",
-      title: "Soldering Station",
-      category: "Lab",
-      description: "Advanced soldering and assembly work"
-    },
-    {
-      id: 10,
-      url: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800&h=600&fit=crop",
-      title: "Community Outreach",
-      category: "Events",
-      description: "Bringing STEM education to local schools"
-    },
-    {
-      id: 11,
-      url: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&h=700&fit=crop",
-      title: "Line Following Robot",
-      category: "Projects",
-      description: "Autonomous robot navigation demonstration"
-    },
-    {
-      id: 12,
-      url: "https://images.unsplash.com/photo-1581093458791-9d42e5f7d6e6?w=900&h=600&fit=crop",
-      title: "Annual Tech Fest",
-      category: "Events",
-      description: "Celebrating innovation and creativity"
+  useEffect(() => {
+    fetchGalleryImages();
+  }, []);
+
+  const fetchGalleryImages = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/admin/gallery');
+      setImages(response.data);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching gallery images:', err);
+      setError('Failed to load gallery images');
+      setLoading(false);
     }
-  ];
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <p className="mt-4 text-gray-600">Loading gallery...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   const categories = ['All', 'Workshops', 'Events', 'Projects', 'Lab'];
 
@@ -133,14 +87,19 @@ const Gallery = () => {
         </div>
 
         {/* Masonry Grid */}
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
-          {filteredImages.map((image, index) => (
-            <div
-              key={image.id}
-              className="break-inside-avoid group cursor-pointer"
-              onClick={() => setSelectedImage(image)}
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
+        {filteredImages.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600 text-lg">No images available in this category yet.</p>
+          </div>
+        ) : (
+          <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+            {filteredImages.map((image, index) => (
+              <div
+                key={image._id}
+                className="break-inside-avoid group cursor-pointer"
+                onClick={() => setSelectedImage(image)}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
               <div className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
                 {/* Image */}
                 <img
@@ -170,6 +129,7 @@ const Gallery = () => {
             </div>
           ))}
         </div>
+        )}
       </section>
 
       {/* Lightbox Modal */}

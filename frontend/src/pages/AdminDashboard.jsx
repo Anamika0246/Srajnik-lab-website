@@ -20,10 +20,10 @@ export default function AdminDashboard() {
 
   // Form states
   const [projectForm, setProjectForm] = useState({
-    title: '', description: '', category: '', technologies: '', date: '', image: '', githubLink: ''
+    title: '', description: '', category: '', technologies: '', date: '', image: '', githubLink: '', demoLink: ''
   });
   const [eventForm, setEventForm] = useState({
-    title: '', description: '', date: '', location: '', image: ''
+    title: '', description: '', category: 'Event', date: '', endDate: '', location: '', image: ''
   });
   const [galleryForm, setGalleryForm] = useState({
     url: '', title: '', category: '', description: ''
@@ -126,7 +126,7 @@ export default function AdminDashboard() {
       const technologies = projectForm.technologies.split(',').map(t => t.trim());
       await axios.post(`${API_URL}/admin/projects`, {...projectForm, image: imageUrl, technologies}, getConfig());
       setMessage('Project added successfully!');
-      setProjectForm({ title: '', description: '', category: '', technologies: '', date: '', image: '', githubLink: '' });
+      setProjectForm({ title: '', description: '', category: '', technologies: '', date: '', image: '', githubLink: '', demoLink: '' });
       setProjectImageFile(null);
       fetchData();
     } catch (error) {
@@ -164,7 +164,7 @@ export default function AdminDashboard() {
 
       await axios.post(`${API_URL}/admin/events`, {...eventForm, image: imageUrl}, getConfig());
       setMessage('Event added successfully!');
-      setEventForm({ title: '', description: '', date: '', location: '', image: '' });
+      setEventForm({ title: '', description: '', category: 'Event', date: '', endDate: '', location: '', image: '' });
       setEventImageFile(null);
       fetchData();
     } catch (error) {
@@ -375,7 +375,8 @@ export default function AdminDashboard() {
                     <p className="mt-2 text-sm text-green-600">✓ {projectImageFile.name}</p>
                   )}
                 </div>
-                <input type="url" placeholder="GitHub Link" value={projectForm.githubLink} onChange={(e) => setProjectForm({...projectForm, githubLink: e.target.value})} required className="md:col-span-2 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
+                <input type="url" placeholder="GitHub Link" value={projectForm.githubLink} onChange={(e) => setProjectForm({...projectForm, githubLink: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
+                <input type="url" placeholder="Demo Link (Optional - Google Drive/Other)" value={projectForm.demoLink} onChange={(e) => setProjectForm({...projectForm, demoLink: e.target.value})} className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
                 <textarea placeholder="Description" value={projectForm.description} onChange={(e) => setProjectForm({...projectForm, description: e.target.value})} required rows="3" className="md:col-span-2 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none resize-none" />
                 <button type="submit" disabled={loading || uploadingImage} className="md:col-span-2 bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50">
                   {uploadingImage ? 'Uploading Image...' : loading ? 'Adding...' : 'Add Project'}
@@ -406,10 +407,15 @@ export default function AdminDashboard() {
         {activeTab === 'events' && (
           <div className="space-y-8">
             <div className="bg-white rounded-2xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold mb-6">Add New Event</h2>
+              <h2 className="text-2xl font-bold mb-6">Add New Event/News</h2>
               <form onSubmit={handleAddEvent} className="grid md:grid-cols-2 gap-6">
                 <input type="text" placeholder="Title" value={eventForm.title} onChange={(e) => setEventForm({...eventForm, title: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
-                <input type="date" value={eventForm.date} onChange={(e) => setEventForm({...eventForm, date: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
+                <select value={eventForm.category} onChange={(e) => setEventForm({...eventForm, category: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none">
+                  <option value="Event">Event Activity (Workshop/Webinar)</option>
+                  <option value="News">News (Notice/Announcement)</option>
+                </select>
+                <input type="date" placeholder="Start Date" value={eventForm.date} onChange={(e) => setEventForm({...eventForm, date: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
+                <input type="date" placeholder="End Date (Optional)" value={eventForm.endDate} onChange={(e) => setEventForm({...eventForm, endDate: e.target.value})} className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
                 <input type="text" placeholder="Location" value={eventForm.location} onChange={(e) => setEventForm({...eventForm, location: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Event Image (Optional)</label>

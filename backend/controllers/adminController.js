@@ -2,6 +2,7 @@ import Project from '../models/Project.js';
 import Event from '../models/Event.js';
 import GalleryImage from '../models/GalleryImage.js';
 import Contact from '../models/Contact.js';
+import { sendContactFormEmail, sendContactFormAutoReply } from '../utils/emailService.js';
 import TeamMember from '../models/TeamMember.js';
 import Resource from '../models/Resource.js';
 
@@ -139,9 +140,33 @@ export const getAllContacts = async (req, res) => {
 
 export const createContact = async (req, res) => {
   try {
+    // Save contact to database
     const contact = await Contact.create(req.body);
+    
+    // Send email notification to admin
+    try {
+      await sendContactFormEmail(req.body);
+      console.log('✓ Contact form email sent to admin');
+    } catch (emailError) {
+      console.error('✗ Failed to send admin email:', emailError.message);
+      // Continue even if email fails - contact is saved
+    }
+    
+    // Send auto-reply to submitter
+    try {
+      const autoReplyResult = await sendContactFormAutoReply(req.body.email, req.body.name);
+      if (autoReplyResult && autoReplyResult.success) {
+        console.log('✓ Auto-reply email sent to submitter');
+      } else {
+        console.log('✗ Failed to send auto-reply:', autoReplyResult?.error || 'Unknown error');
+      }
+    } catch (emailError) {
+      console.error('✗ Failed to send auto-reply:', emailError.message);
+    }
+    
     res.status(201).json(contact);
   } catch (error) {
+    console.error('Error creating contact:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -179,9 +204,13 @@ export const deleteContact = async (req, res) => {
 // TEAM MEMBER CONTROLLERS
 export const getAllTeamMembers = async (req, res) => {
   try {
+    console.log('Fetching all team members...');
     const teamMembers = await TeamMember.find({}).sort({ order: 1, createdAt: -1 });
+    console.log('Found', teamMembers.length, 'team members');
     res.json(teamMembers);
   } catch (error) {
+    console.error('GET /team error:', error.message);
+    console.error('Stack:', error.stack);
     res.status(500).json({ message: error.message });
   }
 };
