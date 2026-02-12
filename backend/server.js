@@ -27,7 +27,7 @@ app.use((req, res, next) => {
 const allowedOrigins = [
     'http://localhost:5173', 
     'http://localhost:3000',
-    process.env.FRONTEND_URL
+    'https://srajnik-lab-website.vercel.app'
 ].filter(Boolean); // Remove undefined values
 
 app.use(cors({
