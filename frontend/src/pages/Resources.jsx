@@ -13,7 +13,7 @@ const Resources = () => {
 
   const fetchResources = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/admin/resources');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/admin/resources`);
       setResources(response.data);
       setLoading(false);
     } catch (err) {

@@ -13,7 +13,7 @@ const News = () => {
 
   const fetchEvents = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/admin/events');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/admin/events`);
       setEvents(response.data);
       setLoading(false);
     } catch (err) {

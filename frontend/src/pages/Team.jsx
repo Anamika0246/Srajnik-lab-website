@@ -14,7 +14,7 @@ const Team = () => {
 
   const fetchTeamMembers = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/admin/team');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/admin/team`);
       const members = response.data;
       
       // Separate lab heads from team members (support multiple leaders)

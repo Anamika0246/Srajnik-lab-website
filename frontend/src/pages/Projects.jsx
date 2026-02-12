@@ -13,7 +13,7 @@ const Projects = () => {
 
   const fetchProjects = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/admin/projects');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/admin/projects`);
       setProjects(response.data);
       setLoading(false);
     } catch (err) {

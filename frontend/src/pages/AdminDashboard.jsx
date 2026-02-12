@@ -42,7 +42,7 @@ export default function AdminDashboard() {
   const [galleryImageFile, setGalleryImageFile] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
 
-  const API_URL = 'http://localhost:5000/api';
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     if (!user || !isAdmin) {
