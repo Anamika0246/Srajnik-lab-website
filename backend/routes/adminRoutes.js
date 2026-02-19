@@ -10,6 +10,7 @@ import {
   deleteEvent,
   getAllGalleryImages,
   addGalleryImage,
+  updateGalleryImage,
   deleteGalleryImage,
   getAllContacts,
   markContactAsRead,
@@ -42,6 +43,7 @@ router.delete('/events/:id', protect, admin, deleteEvent);
 // Gallery routes
 router.get('/gallery', getAllGalleryImages);
 router.post('/gallery', protect, admin, addGalleryImage);
+router.put('/gallery/:id', protect, admin, updateGalleryImage);
 router.delete('/gallery/:id', protect, admin, deleteGalleryImage);
 
 // Contact routes

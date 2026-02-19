@@ -42,6 +42,13 @@ export default function AdminDashboard() {
   const [galleryImageFile, setGalleryImageFile] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
 
+  // Edit mode states
+  const [editingProject, setEditingProject] = useState(null);
+  const [editingEvent, setEditingEvent] = useState(null);
+  const [editingGallery, setEditingGallery] = useState(null);
+  const [editingTeam, setEditingTeam] = useState(null);
+  const [editingResource, setEditingResource] = useState(null);
+
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
@@ -150,6 +157,52 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleEditProject = (project) => {
+    setEditingProject(project._id);
+    setProjectForm({
+      title: project.title,
+      description: project.description,
+      category: project.category,
+      technologies: project.technologies.join(', '),
+      date: project.date,
+      image: project.image,
+      githubLink: project.githubLink,
+      demoLink: project.demoLink || ''
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleUpdateProject = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      let imageUrl = projectForm.image;
+
+      if (projectImageFile) {
+        imageUrl = await uploadImage(projectImageFile, 'srajnik-lab/projects');
+      }
+
+      const technologies = projectForm.technologies.split(',').map(t => t.trim());
+      await axios.put(`${API_URL}/admin/projects/${editingProject}`, {...projectForm, image: imageUrl, technologies}, getConfig());
+      setMessage('Project updated successfully!');
+      setProjectForm({ title: '', description: '', category: '', technologies: '', date: '', image: '', githubLink: '', demoLink: '' });
+      setProjectImageFile(null);
+      setEditingProject(null);
+      fetchData();
+    } catch (error) {
+      setMessage(error.message || 'Error updating project');
+    } finally {
+      setLoading(false);
+      setTimeout(() => setMessage(''), 3000);
+    }
+  };
+
+  const handleCancelEditProject = () => {
+    setEditingProject(null);
+    setProjectForm({ title: '', description: '', category: '', technologies: '', date: '', image: '', githubLink: '', demoLink: '' });
+    setProjectImageFile(null);
+  };
+
   // Event handlers
   const handleAddEvent = async (e) => {
     e.preventDefault();
@@ -186,6 +239,50 @@ export default function AdminDashboard() {
       }
       setTimeout(() => setMessage(''), 3000);
     }
+  };
+
+  const handleEditEvent = (event) => {
+    setEditingEvent(event._id);
+    setEventForm({
+      title: event.title,
+      description: event.description,
+      category: event.category,
+      date: event.date.split('T')[0],
+      endDate: event.endDate ? event.endDate.split('T')[0] : '',
+      location: event.location,
+      image: event.image || ''
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleUpdateEvent = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      let imageUrl = eventForm.image;
+
+      if (eventImageFile) {
+        imageUrl = await uploadImage(eventImageFile, 'srajnik-lab/events');
+      }
+
+      await axios.put(`${API_URL}/admin/events/${editingEvent}`, {...eventForm, image: imageUrl}, getConfig());
+      setMessage('Event updated successfully!');
+      setEventForm({ title: '', description: '', category: 'Event', date: '', endDate: '', location: '', image: '' });
+      setEventImageFile(null);
+      setEditingEvent(null);
+      fetchData();
+    } catch (error) {
+      setMessage(error.message || 'Error updating event');
+    } finally {
+      setLoading(false);
+      setTimeout(() => setMessage(''), 3000);
+    }
+  };
+
+  const handleCancelEditEvent = () => {
+    setEditingEvent(null);
+    setEventForm({ title: '', description: '', category: 'Event', date: '', endDate: '', location: '', image: '' });
+    setEventImageFile(null);
   };
 
   // Gallery handlers
@@ -230,6 +327,47 @@ export default function AdminDashboard() {
       }
       setTimeout(() => setMessage(''), 3000);
     }
+  };
+
+  const handleEditGallery = (image) => {
+    setEditingGallery(image._id);
+    setGalleryForm({
+      url: image.url,
+      title: image.title,
+      category: image.category,
+      description: image.description
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleUpdateGallery = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      let imageUrl = galleryForm.url;
+
+      if (galleryImageFile) {
+        imageUrl = await uploadImage(galleryImageFile, 'srajnik-lab/gallery');
+      }
+
+      await axios.put(`${API_URL}/admin/gallery/${editingGallery}`, {...galleryForm, url: imageUrl}, getConfig());
+      setMessage('Gallery image updated successfully!');
+      setGalleryForm({ url: '', title: '', category: '', description: '' });
+      setGalleryImageFile(null);
+      setEditingGallery(null);
+      fetchData();
+    } catch (error) {
+      setMessage(error.message || 'Error updating image');
+    } finally {
+      setLoading(false);
+      setTimeout(() => setMessage(''), 3000);
+    }
+  };
+
+  const handleCancelEditGallery = () => {
+    setEditingGallery(null);
+    setGalleryForm({ url: '', title: '', category: '', description: '' });
+    setGalleryImageFile(null);
   };
 
   const handleMarkContactAsRead = async (id) => {
@@ -285,6 +423,53 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleEditTeam = (member) => {
+    setEditingTeam(member._id);
+    setTeamForm({
+      name: member.name,
+      role: member.role,
+      image: member.image,
+      bio: member.bio,
+      skills: member.skills.join(', '),
+      email: member.email,
+      linkedin: member.linkedin || '',
+      github: member.github || '',
+      isLabHead: member.isLabHead
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleUpdateTeam = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      let imageUrl = teamForm.image;
+
+      if (teamImageFile) {
+        imageUrl = await uploadImage(teamImageFile, 'srajnik-lab/team');
+      }
+
+      const skills = teamForm.skills.split(',').map(s => s.trim());
+      await axios.put(`${API_URL}/admin/team/${editingTeam}`, {...teamForm, image: imageUrl, skills}, getConfig());
+      setMessage('Team member updated successfully!');
+      setTeamForm({ name: '', role: '', image: '', bio: '', skills: '', email: '', linkedin: '', github: '', isLabHead: false });
+      setTeamImageFile(null);
+      setEditingTeam(null);
+      fetchData();
+    } catch (error) {
+      setMessage(error.message || 'Error updating team member');
+    } finally {
+      setLoading(false);
+      setTimeout(() => setMessage(''), 3000);
+    }
+  };
+
+  const handleCancelEditTeam = () => {
+    setEditingTeam(null);
+    setTeamForm({ name: '', role: '', image: '', bio: '', skills: '', email: '', linkedin: '', github: '', isLabHead: false });
+    setTeamImageFile(null);
+  };
+
   // Resource handlers
   const handleAddResource = async (e) => {
     e.preventDefault();
@@ -316,33 +501,70 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleEditResource = (resource) => {
+    setEditingResource(resource._id);
+    setResourceForm({
+      title: resource.title,
+      description: resource.description,
+      category: resource.category,
+      link: resource.link,
+      tags: resource.tags.join(', '),
+      author: resource.author || '',
+      difficulty: resource.difficulty
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleUpdateResource = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const tags = resourceForm.tags.split(',').map(t => t.trim());
+      await axios.put(`${API_URL}/admin/resources/${editingResource}`, {...resourceForm, tags}, getConfig());
+      setMessage('Resource updated successfully!');
+      setResourceForm({ title: '', description: '', category: '', link: '', tags: '', author: '', difficulty: 'Beginner' });
+      setEditingResource(null);
+      fetchData();
+    } catch (error) {
+      setMessage(error.message || 'Error updating resource');
+    } finally {
+      setLoading(false);
+      setTimeout(() => setMessage(''), 3000);
+    }
+  };
+
+  const handleCancelEditResource = () => {
+    setEditingResource(null);
+    setResourceForm({ title: '', description: '', category: '', link: '', tags: '', author: '', difficulty: 'Beginner' });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-8 px-6">
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-6 sm:py-8 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-extrabold mb-2">Admin Dashboard</h1>
-          <p className="text-blue-100">Manage your lab's content</p>
+          <h1 className="text-3xl sm:text-4xl font-extrabold mb-2">Admin Dashboard</h1>
+          <p className="text-blue-100 text-sm sm:text-base">Manage your lab's content</p>
         </div>
       </div>
 
       {/* Message Banner */}
       {message && (
-        <div className="max-w-7xl mx-auto px-6 mt-6">
-          <div className="bg-green-50 border border-green-200 text-green-700 px-6 py-4 rounded-xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-6">
+          <div className="bg-green-50 border border-green-200 text-green-700 px-4 sm:px-6 py-4 rounded-xl">
             {message}
           </div>
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {/* Tabs */}
-        <div className="flex flex-wrap gap-4 mb-8">
+        <div className="flex overflow-x-auto gap-3 sm:gap-4 mb-8 pb-2 scrollbar-hide">
           {['projects', 'events', 'gallery', 'team', 'resources', 'contacts'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-6 py-3 rounded-xl font-semibold capitalize transition-all ${
+              className={`px-4 sm:px-6 py-3 rounded-xl font-semibold capitalize transition-all whitespace-nowrap flex-shrink-0 ${
                 activeTab === tab
                   ? 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg'
                   : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
@@ -357,14 +579,14 @@ export default function AdminDashboard() {
         {activeTab === 'projects' && (
           <div className="space-y-8">
             <div className="bg-white rounded-2xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold mb-6">Add New Project</h2>
-              <form onSubmit={handleAddProject} className="grid md:grid-cols-2 gap-6">
+              <h2 className="text-2xl font-bold mb-6">{editingProject ? 'Edit Project' : 'Add New Project'}</h2>
+              <form onSubmit={editingProject ? handleUpdateProject : handleAddProject} className="grid md:grid-cols-2 gap-6">
                 <input type="text" placeholder="Title" value={projectForm.title} onChange={(e) => setProjectForm({...projectForm, title: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
                 <input type="text" placeholder="Category" value={projectForm.category} onChange={(e) => setProjectForm({...projectForm, category: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
                 <input type="text" placeholder="Technologies (comma-separated)" value={projectForm.technologies} onChange={(e) => setProjectForm({...projectForm, technologies: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
                 <input type="text" placeholder="Date (e.g., Jan 2025)" value={projectForm.date} onChange={(e) => setProjectForm({...projectForm, date: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Project Image</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Project Image {!editingProject && '(Required)'}</label>
                   <input 
                     type="file" 
                     accept="image/*"
@@ -374,13 +596,23 @@ export default function AdminDashboard() {
                   {projectImageFile && (
                     <p className="mt-2 text-sm text-green-600">✓ {projectImageFile.name}</p>
                   )}
+                  {editingProject && !projectImageFile && (
+                    <p className="mt-2 text-sm text-gray-600">Current image will be kept if no new file is uploaded</p>
+                  )}
                 </div>
                 <input type="url" placeholder="GitHub Link" value={projectForm.githubLink} onChange={(e) => setProjectForm({...projectForm, githubLink: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
                 <input type="url" placeholder="Demo Link (Optional - Google Drive/Other)" value={projectForm.demoLink} onChange={(e) => setProjectForm({...projectForm, demoLink: e.target.value})} className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
                 <textarea placeholder="Description" value={projectForm.description} onChange={(e) => setProjectForm({...projectForm, description: e.target.value})} required rows="3" className="md:col-span-2 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none resize-none" />
-                <button type="submit" disabled={loading || uploadingImage} className="md:col-span-2 bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50">
-                  {uploadingImage ? 'Uploading Image...' : loading ? 'Adding...' : 'Add Project'}
-                </button>
+                <div className="md:col-span-2 flex gap-4">
+                  <button type="submit" disabled={loading || uploadingImage} className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50">
+                    {uploadingImage ? 'Uploading Image...' : loading ? (editingProject ? 'Updating...' : 'Adding...') : (editingProject ? 'Update Project' : 'Add Project')}
+                  </button>
+                  {editingProject && (
+                    <button type="button" onClick={handleCancelEditProject} className="px-6 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition-all">
+                      Cancel
+                    </button>
+                  )}
+                </div>
               </form>
             </div>
 
@@ -388,14 +620,19 @@ export default function AdminDashboard() {
               <h2 className="text-2xl font-bold mb-6">Existing Projects ({projects.length})</h2>
               <div className="grid gap-4">
                 {projects.map((project) => (
-                  <div key={project._id} className="flex justify-between items-center p-4 border-2 border-gray-100 rounded-xl hover:border-blue-200 transition-colors">
+                  <div key={project._id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-4 border-2 border-gray-100 rounded-xl hover:border-blue-200 transition-colors">
                     <div>
                       <h3 className="font-bold text-lg">{project.title}</h3>
                       <p className="text-sm text-gray-600">{project.category} • {project.date}</p>
                     </div>
-                    <button onClick={() => handleDeleteProject(project._id)} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
-                      Delete
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={() => handleEditProject(project)} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        Edit
+                      </button>
+                      <button onClick={() => handleDeleteProject(project._id)} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -407,8 +644,8 @@ export default function AdminDashboard() {
         {activeTab === 'events' && (
           <div className="space-y-8">
             <div className="bg-white rounded-2xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold mb-6">Add New Event/News</h2>
-              <form onSubmit={handleAddEvent} className="grid md:grid-cols-2 gap-6">
+              <h2 className="text-2xl font-bold mb-6">{editingEvent ? 'Edit Event/News' : 'Add New Event/News'}</h2>
+              <form onSubmit={editingEvent ? handleUpdateEvent : handleAddEvent} className="grid md:grid-cols-2 gap-6">
                 <input type="text" placeholder="Title" value={eventForm.title} onChange={(e) => setEventForm({...eventForm, title: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
                 <select value={eventForm.category} onChange={(e) => setEventForm({...eventForm, category: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none">
                   <option value="Event">Event Activity (Workshop/Webinar)</option>
@@ -430,9 +667,16 @@ export default function AdminDashboard() {
                   )}
                 </div>
                 <textarea placeholder="Description" value={eventForm.description} onChange={(e) => setEventForm({...eventForm, description: e.target.value})} required rows="3" className="md:col-span-2 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none resize-none" />
-                <button type="submit" disabled={loading || uploadingImage} className="md:col-span-2 bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50">
-                  {uploadingImage ? 'Uploading Image...' : loading ? 'Adding...' : 'Add Event'}
-                </button>
+                <div className="md:col-span-2 flex gap-4">
+                  <button type="submit" disabled={loading || uploadingImage} className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50">
+                    {uploadingImage ? 'Uploading Image...' : loading ? (editingEvent ? 'Updating...' : 'Adding...') : (editingEvent ? 'Update Event' : 'Add Event')}
+                  </button>
+                  {editingEvent && (
+                    <button type="button" onClick={handleCancelEditEvent} className="px-6 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition-all">
+                      Cancel
+                    </button>
+                  )}
+                </div>
               </form>
             </div>
 
@@ -440,14 +684,19 @@ export default function AdminDashboard() {
               <h2 className="text-2xl font-bold mb-6">Existing Events ({events.length})</h2>
               <div className="grid gap-4">
                 {events.map((event) => (
-                  <div key={event._id} className="flex justify-between items-center p-4 border-2 border-gray-100 rounded-xl hover:border-blue-200 transition-colors">
+                  <div key={event._id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-4 border-2 border-gray-100 rounded-xl hover:border-blue-200 transition-colors">
                     <div>
                       <h3 className="font-bold text-lg">{event.title}</h3>
                       <p className="text-sm text-gray-600">{new Date(event.date).toLocaleDateString()} • {event.location}</p>
                     </div>
-                    <button onClick={() => handleDeleteEvent(event._id)} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
-                      Delete
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={() => handleEditEvent(event)} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        Edit
+                      </button>
+                      <button onClick={() => handleDeleteEvent(event._id)} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -459,8 +708,8 @@ export default function AdminDashboard() {
         {activeTab === 'gallery' && (
           <div className="space-y-8">
             <div className="bg-white rounded-2xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold mb-6">Add Gallery Image</h2>
-              <form onSubmit={handleAddGalleryImage} className="grid md:grid-cols-2 gap-6">
+              <h2 className="text-2xl font-bold mb-6">{editingGallery ? 'Edit Gallery Image' : 'Add Gallery Image'}</h2>
+              <form onSubmit={editingGallery ? handleUpdateGallery : handleAddGalleryImage} className="grid md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Select Image</label>
                   <input 
@@ -479,6 +728,9 @@ export default function AdminDashboard() {
                       <p className="mt-2 text-sm text-green-600">✓ {galleryImageFile.name}</p>
                     </div>
                   )}
+                  {editingGallery && !galleryImageFile && (
+                    <p className="mt-2 text-sm text-gray-600">Current image will be kept if no new file is uploaded</p>
+                  )}
                 </div>
                 <input type="text" placeholder="Title" value={galleryForm.title} onChange={(e) => setGalleryForm({...galleryForm, title: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
                 <select value={galleryForm.category} onChange={(e) => setGalleryForm({...galleryForm, category: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none">
@@ -489,9 +741,16 @@ export default function AdminDashboard() {
                   <option value="Lab">Lab</option>
                 </select>
                 <input type="text" placeholder="Description" value={galleryForm.description} onChange={(e) => setGalleryForm({...galleryForm, description: e.target.value})} required className="md:col-span-2 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
-                <button type="submit" disabled={loading || uploadingImage || !galleryImageFile} className="md:col-span-2 bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50">
-                  {uploadingImage ? 'Uploading Image...' : loading ? 'Adding...' : 'Add to Gallery'}
-                </button>
+                <div className="md:col-span-2 flex gap-4">
+                  <button type="submit" disabled={loading || uploadingImage || (!galleryImageFile && !editingGallery)} className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50">
+                    {uploadingImage ? 'Uploading Image...' : loading ? (editingGallery ? 'Updating...' : 'Adding...') : (editingGallery ? 'Update Image' : 'Add to Gallery')}
+                  </button>
+                  {editingGallery && (
+                    <button type="button" onClick={handleCancelEditGallery} className="px-6 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition-all">
+                      Cancel
+                    </button>
+                  )}
+                </div>
               </form>
             </div>
 
@@ -501,8 +760,11 @@ export default function AdminDashboard() {
                 {galleryImages.map((image) => (
                   <div key={image._id} className="relative group">
                     <img src={image.url} alt={image.title} className="w-full h-40 object-cover rounded-xl" />
-                    <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
-                      <button onClick={() => handleDeleteGalleryImage(image._id)} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                    <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex flex-col items-center justify-center gap-2">
+                      <button onClick={() => handleEditGallery(image)} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm">
+                        Edit
+                      </button>
+                      <button onClick={() => handleDeleteGalleryImage(image._id)} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm">
                         Delete
                       </button>
                     </div>
@@ -548,8 +810,8 @@ export default function AdminDashboard() {
         {activeTab === 'team' && (
           <div className="space-y-8">
             <div className="bg-white rounded-2xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold mb-6">Add Team Member</h2>
-              <form onSubmit={handleAddTeamMember} className="grid md:grid-cols-2 gap-6">
+              <h2 className="text-2xl font-bold mb-6">{editingTeam ? 'Edit Team Member' : 'Add Team Member'}</h2>
+              <form onSubmit={editingTeam ? handleUpdateTeam : handleAddTeamMember} className="grid md:grid-cols-2 gap-6">
                 <input type="text" placeholder="Name" value={teamForm.name} onChange={(e) => setTeamForm({...teamForm, name: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
                 <input type="text" placeholder="Role" value={teamForm.role} onChange={(e) => setTeamForm({...teamForm, role: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
                 <input type="email" placeholder="Email" value={teamForm.email} onChange={(e) => setTeamForm({...teamForm, email: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
@@ -567,15 +829,25 @@ export default function AdminDashboard() {
                   {teamImageFile && (
                     <p className="mt-2 text-sm text-green-600">✓ {teamImageFile.name}</p>
                   )}
+                  {editingTeam && !teamImageFile && (
+                    <p className="mt-2 text-sm text-gray-600">Current image will be kept if no new file is uploaded</p>
+                  )}
                 </div>
                 <textarea placeholder="Bio" value={teamForm.bio} onChange={(e) => setTeamForm({...teamForm, bio: e.target.value})} required rows="4" className="md:col-span-2 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none resize-none" />
                 <div className="flex items-center gap-2">
                   <input type="checkbox" id="isLabHead" checked={teamForm.isLabHead} onChange={(e) => setTeamForm({...teamForm, isLabHead: e.target.checked})} className="w-5 h-5 text-blue-600 rounded" />
                   <label htmlFor="isLabHead" className="text-sm font-semibold text-gray-700">Mark as Lab Head</label>
                 </div>
-                <button type="submit" disabled={loading || uploadingImage} className="md:col-span-2 bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50">
-                  {uploadingImage ? 'Uploading Image...' : loading ? 'Adding...' : 'Add Team Member'}
-                </button>
+                <div className="md:col-span-2 flex gap-4">
+                  <button type="submit" disabled={loading || uploadingImage} className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50">
+                    {uploadingImage ? 'Uploading Image...' : loading ? (editingTeam ? 'Updating...' : 'Adding...') : (editingTeam ? 'Update Team Member' : 'Add Team Member')}
+                  </button>
+                  {editingTeam && (
+                    <button type="button" onClick={handleCancelEditTeam} className="px-6 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition-all">
+                      Cancel
+                    </button>
+                  )}
+                </div>
               </form>
             </div>
 
@@ -583,7 +855,7 @@ export default function AdminDashboard() {
               <h2 className="text-2xl font-bold mb-6">Team Members ({teamMembers.length})</h2>
               <div className="grid gap-4">
                 {teamMembers.map((member) => (
-                  <div key={member._id} className="flex justify-between items-center p-4 border-2 border-gray-100 rounded-xl hover:border-blue-200 transition-colors">
+                  <div key={member._id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-4 border-2 border-gray-100 rounded-xl hover:border-blue-200 transition-colors">
                     <div className="flex items-center gap-4">
                       <img src={member.image} alt={member.name} className="w-16 h-16 rounded-full object-cover" />
                       <div>
@@ -591,9 +863,14 @@ export default function AdminDashboard() {
                         <p className="text-sm text-gray-600">{member.role} • {member.email}</p>
                       </div>
                     </div>
-                    <button onClick={() => handleDeleteTeamMember(member._id)} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
-                      Delete
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={() => handleEditTeam(member)} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        Edit
+                      </button>
+                      <button onClick={() => handleDeleteTeamMember(member._id)} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -605,8 +882,8 @@ export default function AdminDashboard() {
         {activeTab === 'resources' && (
           <div className="space-y-8">
             <div className="bg-white rounded-2xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold mb-6">Add Resource</h2>
-              <form onSubmit={handleAddResource} className="grid md:grid-cols-2 gap-6">
+              <h2 className="text-2xl font-bold mb-6">{editingResource ? 'Edit Resource' : 'Add Resource'}</h2>
+              <form onSubmit={editingResource ? handleUpdateResource : handleAddResource} className="grid md:grid-cols-2 gap-6">
                 <input type="text" placeholder="Title" value={resourceForm.title} onChange={(e) => setResourceForm({...resourceForm, title: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
                 <select value={resourceForm.category} onChange={(e) => setResourceForm({...resourceForm, category: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none">
                   <option value="">Select Category</option>
@@ -627,9 +904,16 @@ export default function AdminDashboard() {
                 <input type="text" placeholder="Author (optional)" value={resourceForm.author} onChange={(e) => setResourceForm({...resourceForm, author: e.target.value})} className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
                 <input type="text" placeholder="Tags (comma-separated)" value={resourceForm.tags} onChange={(e) => setResourceForm({...resourceForm, tags: e.target.value})} required className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none" />
                 <textarea placeholder="Description" value={resourceForm.description} onChange={(e) => setResourceForm({...resourceForm, description: e.target.value})} required rows="3" className="md:col-span-2 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none resize-none" />
-                <button type="submit" disabled={loading} className="md:col-span-2 bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50">
-                  {loading ? 'Adding...' : 'Add Resource'}
-                </button>
+                <div className="md:col-span-2 flex gap-4">
+                  <button type="submit" disabled={loading} className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50">
+                    {loading ? (editingResource ? 'Updating...' : 'Adding...') : (editingResource ? 'Update Resource' : 'Add Resource')}
+                  </button>
+                  {editingResource && (
+                    <button type="button" onClick={handleCancelEditResource} className="px-6 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition-all">
+                      Cancel
+                    </button>
+                  )}
+                </div>
               </form>
             </div>
 
@@ -637,15 +921,20 @@ export default function AdminDashboard() {
               <h2 className="text-2xl font-bold mb-6">Resources ({resources.length})</h2>
               <div className="grid gap-4">
                 {resources.map((resource) => (
-                  <div key={resource._id} className="flex justify-between items-center p-4 border-2 border-gray-100 rounded-xl hover:border-blue-200 transition-colors">
-                    <div>
+                  <div key={resource._id} className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 p-4 border-2 border-gray-100 rounded-xl hover:border-blue-200 transition-colors">
+                    <div className="flex-1">
                       <h3 className="font-bold text-lg">{resource.title}</h3>
                       <p className="text-sm text-gray-600">{resource.category} • {resource.difficulty} {resource.author && `• ${resource.author}`}</p>
-                      <a href={resource.link} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">{resource.link}</a>
+                      <a href={resource.link} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline break-all">{resource.link}</a>
                     </div>
-                    <button onClick={() => handleDeleteResource(resource._id)} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
-                      Delete
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={() => handleEditResource(resource)} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        Edit
+                      </button>
+                      <button onClick={() => handleDeleteResource(resource._id)} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

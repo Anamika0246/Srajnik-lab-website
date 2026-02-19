@@ -115,6 +115,19 @@ export const addGalleryImage = async (req, res) => {
   }
 };
 
+export const updateGalleryImage = async (req, res) => {
+  try {
+    const image = await GalleryImage.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (image) {
+      res.json(image);
+    } else {
+      res.status(404).json({ message: 'Image not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const deleteGalleryImage = async (req, res) => {
   try {
     const image = await GalleryImage.findByIdAndDelete(req.params.id);

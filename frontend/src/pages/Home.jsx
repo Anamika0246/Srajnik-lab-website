@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 export default function Home() {
   return (
     <div className="w-full">
@@ -28,20 +30,20 @@ export default function Home() {
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="/projects"
+            <Link
+              to="/projects"
               className="group bg-white text-indigo-700 px-8 py-4 rounded-xl font-semibold hover:bg-indigo-50 transition-all shadow-lg hover:shadow-xl hover:scale-105 transform duration-300"
             >
               Explore Projects
               <span className="inline-block ml-2 group-hover:translate-x-1 transition-transform">→</span>
-            </a>
+            </Link>
 
-            <a
-              href="/contact"
+            <Link
+              to="/contact"
               className="border-2 border-white/60 backdrop-blur-sm text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/20 transition-all hover:border-white"
             >
               Get Involved
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -64,12 +66,12 @@ export default function Home() {
             </p>
 
             <div className="pt-4">
-              <a href="/about" className="text-blue-600 font-semibold hover:text-blue-700 inline-flex items-center gap-2">
+              <Link to="/about" className="text-blue-600 font-semibold hover:text-blue-700 inline-flex items-center gap-2">
                 Learn more about us
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
                 </svg>
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -223,15 +225,15 @@ export default function Home() {
             Be part of a community that's shaping the future through innovation and education
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="/team" className="bg-white text-blue-700 px-8 py-4 rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-lg inline-flex items-center justify-center gap-2">
+            <Link to="/team" className="bg-white text-blue-700 px-8 py-4 rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-lg inline-flex items-center justify-center gap-2">
               Meet Our Team
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
               </svg>
-            </a>
-            <a href="/resources" className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/10 transition-all inline-flex items-center justify-center gap-2">
+            </Link>
+            <Link to="/resources" className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/10 transition-all inline-flex items-center justify-center gap-2">
               Explore Resources
-            </a>
+            </Link>
           </div>
         </div>
       </section>
